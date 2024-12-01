@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gradient Extractor</title>
+    <script>
+      window.onmessage = (event) => {
+        if (event.data.pluginMessage.type === "gradient-data") {
+          const gradients = event.data.pluginMessage.gradients;
+          document.getElementById("results").innerText = JSON.stringify(
+            gradients,
+            null,
+            2
+          );
+        }
+      };
+
+      function extractGradients() {
+        parent.postMessage(
+          { pluginMessage: { type: "extract-gradients" } },
+          "*"
+        );
+      }
+    </script>
+  </head>
+  <body>
+    <h2>Gradient Extractor</h2>
+    <button onclick="extractGradients()">Extract Gradients</button>
+    <pre id="results"></pre>
+  </body>
+</html>
