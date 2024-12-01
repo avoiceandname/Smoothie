@@ -3,27 +3,81 @@ figma.showUI(__html__, { width: 300, height: 400 });
 
 // Function to handle gradient extraction
 async function extractGradients(node) {
-  const fills = node.fills;
-  if (!fills || !Array.isArray(fills)) return null;
+  const gradients = {};
 
-  for (const fill of fills) {
-    if (fill.type === "GRADIENT_LINEAR" || fill.type === "GRADIENT_RADIAL") {
-      const colors = fill.gradientStops.map((stop) => {
-        const { r, g, b, a } = stop.color;
-        return `rgba(${Math.round(r * 255)}, ${Math.round(
-          g * 255
-        )}, ${Math.round(b * 255)}, ${a})`;
-      });
+  // Extract fill gradients
+  if (node.fills && Array.isArray(node.fills)) {
+    for (const fill of node.fills) {
+      if (
+        fill.type === "GRADIENT_LINEAR" ||
+        fill.type === "GRADIENT_RADIAL" ||
+        fill.type === "GRADIENT_ANGULAR" ||
+        fill.type === "GRADIENT_DIAMOND"
+      ) {
+        const colors = fill.gradientStops.map((stop) => {
+          const { r, g, b, a } = stop.color;
+          return `rgba(${Math.round(r * 255)}, ${Math.round(
+            g * 255
+          )}, ${Math.round(b * 255)}, ${a})`;
+        });
 
-      const stops = fill.gradientStops.map((stop) => stop.position);
+        const stops = fill.gradientStops.map((stop) => stop.position);
 
-      return {
-        background: colors,
-        backgroundStops: stops,
-      };
+        let gradientDirection = null;
+        if (fill.type === "GRADIENT_LINEAR") {
+          const { x: startX, y: startY } = fill.gradientTransform[0];
+          const { x: endX, y: endY } = fill.gradientTransform[1];
+          gradientDirection =
+            Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
+        }
+
+        gradients.fill = {
+          background: colors,
+          backgroundStops: stops,
+          type: fill.type,
+          direction: gradientDirection,
+        };
+      }
     }
   }
-  return null;
+
+  // Extract stroke gradients
+  if (node.strokes && Array.isArray(node.strokes)) {
+    for (const stroke of node.strokes) {
+      if (
+        stroke.type === "GRADIENT_LINEAR" ||
+        stroke.type === "GRADIENT_RADIAL" ||
+        stroke.type === "GRADIENT_ANGULAR" ||
+        stroke.type === "GRADIENT_DIAMOND"
+      ) {
+        const colors = stroke.gradientStops.map((stop) => {
+          const { r, g, b, a } = stop.color;
+          return `rgba(${Math.round(r * 255)}, ${Math.round(
+            g * 255
+          )}, ${Math.round(b * 255)}, ${a})`;
+        });
+
+        const stops = stroke.gradientStops.map((stop) => stop.position);
+
+        let gradientDirection = null;
+        if (stroke.type === "GRADIENT_LINEAR") {
+          const { x: startX, y: startY } = stroke.gradientTransform[0];
+          const { x: endX, y: endY } = stroke.gradientTransform[1];
+          gradientDirection =
+            Math.atan2(endY - startY, endX - startX) * (180 / Math.PI);
+        }
+
+        gradients.stroke = {
+          background: colors,
+          backgroundStops: stops,
+          type: stroke.type,
+          direction: gradientDirection,
+        };
+      }
+    }
+  }
+
+  return Object.keys(gradients).length > 0 ? gradients : null;
 }
 
 // Function to process the selection in Figma
@@ -49,8 +103,8 @@ figma.ui.onmessage = async (msg) => {
         if (gradientData) {
           results.push({
             name: node.name,
-            background: gradientData.background,
-            backgroundStops: gradientData.backgroundStops,
+            fill: gradientData.fill || null,
+            stroke: gradientData.stroke || null,
           });
         }
       }

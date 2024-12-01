@@ -1,6 +1,6 @@
 {
-  "name": "Gradient Extractor",
-  "id": "extract-gradients-plugin",
+  "name": "Smoothie",
+  "id": "smoothie-extract-gradients-plugin",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
