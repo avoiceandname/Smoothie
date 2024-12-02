@@ -1,5 +1,5 @@
 // This script extracts gradients from Figma layers and formats them as needed
-figma.showUI(__html__, { width: 300, height: 400 });
+figma.showUI(__html__, { width: 400, height: 500 });
 
 // Function to handle gradient extraction
 async function extractGradients(node) {
