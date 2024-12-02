@@ -1,16 +1,111 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Gradient Extractor</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background-color: #f5f5f7;
+        color: #1d1d1f;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+      }
+
+      .gradient-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 15px;
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .gradient-title {
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      .gradient-info {
+        font-size: 14px;
+        line-height: 1.6;
+        background: #f0f0f5;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+
+      .button {
+        background: linear-gradient(
+          90deg,
+          #ff5f6d,
+          #ffc371,
+          #47e5bc,
+          #0288d1,
+          #833ab4,
+          #fd1d1d,
+          #fcb045
+        );
+        background-size: 300% 300%;
+        color: #ffffff;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        margin-top: 20px;
+        transition: background-position 0.5s, background-color 0.3s ease;
+      }
+
+      .button:hover {
+        background-position: right center;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="content"></div>
+      <button class="button" onclick="extractGradients()">
+        Extract Gradients
+      </button>
+    </div>
     <script>
       window.onmessage = (event) => {
         if (event.data.pluginMessage.type === "gradient-data") {
           const gradients = event.data.pluginMessage.gradients;
-          document.getElementById("results").innerText = JSON.stringify(
-            gradients,
-            null,
-            2
-          );
+          const content = document.getElementById("content");
+          content.innerHTML = "";
+
+          gradients.forEach((gradient) => {
+            const gradientCard = document.createElement("div");
+            gradientCard.className = "gradient-card";
+            gradientCard.innerHTML = `
+            <div class="gradient-title">${gradient.name}</div>
+            <div class="gradient-info">
+              Fill: ${
+                gradient.fill ? JSON.stringify(gradient.fill, null, 2) : "None"
+              }<br>
+              Stroke: ${
+                gradient.stroke
+                  ? JSON.stringify(gradient.stroke, null, 2)
+                  : "None"
+              }
+            </div>
+          `;
+            content.appendChild(gradientCard);
+          });
         }
       };
 
@@ -21,10 +116,5 @@
         );
       }
     </script>
-  </head>
-  <body>
-    <h2>Smoothie</h2>
-    <button onclick="extractGradients()">Extract Gradients</button>
-    <pre id="results"></pre>
   </body>
 </html>
